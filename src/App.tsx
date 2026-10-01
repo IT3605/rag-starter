@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { BottomNav, TabKey } from './components/BottomNav';
 import { WatchlistView } from './components/WatchlistView';
+import { MarketsView } from './components/MarketsView';
 import { ChartView } from './components/ChartView';
 import { IdeasView } from './components/IdeasView';
 import { NewsView } from './components/NewsView';
@@ -15,11 +16,12 @@ import { IndicatorsModal } from './components/IndicatorsModal';
 import { SearchModal } from './components/SearchModal';
 import { AlertsModal } from './components/AlertsModal';
 import { ProfileModal } from './components/ProfileModal';
+import { SymbolDetailsModal } from './components/SymbolDetailsModal';
 import { INITIAL_WATCHLISTS } from './data/mockData';
 import { WatchlistItem, IndicatorSettings, Position, TradeIdea } from './types';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabKey>('chart');
+  const [activeTab, setActiveTab] = useState<TabKey>('markets');
   const [watchlists, setWatchlists] = useState(INITIAL_WATCHLISTS);
   const [currentListName, setCurrentListName] = useState('Crypto Majors');
   const [activeSymbol, setActiveSymbol] = useState<WatchlistItem>(
@@ -39,6 +41,10 @@ export default function App() {
   const [isIndicatorsOpen, setIsIndicatorsOpen] = useState(false);
   const [isAlertsOpen, setIsAlertsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSymbolDetailsOpen, setIsSymbolDetailsOpen] = useState(false);
+  const [symbolDetailsItem, setSymbolDetailsItem] = useState<WatchlistItem>(
+    INITIAL_WATCHLISTS['Crypto Majors'][0]
+  );
 
   // Open positions
   const [positions, setPositions] = useState<Position[]>([
@@ -130,6 +136,37 @@ export default function App() {
     }
   };
 
+  const handleOpenDetails = (itemOrSymbol: WatchlistItem | string) => {
+    if (typeof itemOrSymbol === 'string') {
+      const clean = itemOrSymbol.replace('/', '').toUpperCase();
+      const found = allSymbols.find(
+        (s) => s.symbol.replace('/', '').toUpperCase() === clean || s.symbol.startsWith(clean)
+      );
+      if (found) {
+        setSymbolDetailsItem(found);
+      } else {
+        setSymbolDetailsItem({
+          symbol: itemOrSymbol,
+          name: `${itemOrSymbol} Asset`,
+          sector: 'Crypto',
+          price: livePrice,
+          changePct: 2.26,
+          changeVal: 1432.20,
+          sparkline: [12, 14, 11, 16, 20, 24],
+          high24h: 65490.00,
+          low24h: 63120.00,
+          vol24h: '42.8B',
+          turnover: '1.84B',
+          exchange: 'BINANCE',
+          decimals: 2,
+        });
+      }
+    } else {
+      setSymbolDetailsItem(itemOrSymbol);
+    }
+    setIsSymbolDetailsOpen(true);
+  };
+
   const handleOpenOrder = (side: 'buy' | 'sell', price: number) => {
     setOrderSide(side);
     setOrderPrice(price);
@@ -144,9 +181,9 @@ export default function App() {
     setPositions(positions.filter((p) => p.id !== id));
   };
 
-  const handleTradeSetup = (idea: TradeIdea) => {
-    handleSelectSymbolByName(idea.symbol);
-    handleOpenOrder(idea.sentiment === 'Bullish' ? 'buy' : 'sell', idea.entryPrice);
+  const handleTradeSetup = (symbol: string, side: 'buy' | 'sell', price: number) => {
+    handleSelectSymbolByName(symbol);
+    handleOpenOrder(side, price);
   };
 
   const handleAddToWatchlist = (item: WatchlistItem) => {
@@ -180,6 +217,17 @@ export default function App() {
             onSelectSymbol={handleSelectSymbol}
             onOpenAddSymbol={() => setIsSearchOpen(true)}
             priceTickMap={priceTickMap}
+            onOpenSymbolDetails={handleOpenDetails}
+          />
+        )}
+
+        {activeTab === 'markets' && (
+          <MarketsView
+            onSelectSymbolForDetails={handleOpenDetails}
+            onOpenChart={(s) => {
+              handleSelectSymbolByName(s);
+              setActiveTab('chart');
+            }}
           />
         )}
 
@@ -201,8 +249,6 @@ export default function App() {
             onTradeSetup={handleTradeSetup}
           />
         )}
-
-        {activeTab === 'news' && <NewsView />}
 
         {activeTab === 'menu' && (
           <div className="p-4 flex flex-col gap-4 max-w-lg mx-auto w-full pb-24">
@@ -332,6 +378,24 @@ export default function App() {
         onClose={() => setIsProfileOpen(false)}
         positions={positions}
         onClosePosition={handleClosePosition}
+      />
+
+      {/* Symbol Technical Details Modal Screen */}
+      <SymbolDetailsModal
+        isOpen={isSymbolDetailsOpen}
+        item={symbolDetailsItem}
+        livePrice={symbolDetailsItem.symbol === activeSymbol.symbol ? livePrice : symbolDetailsItem.price}
+        onClose={() => setIsSymbolDetailsOpen(false)}
+        onGoToChart={(item) => {
+          handleSelectSymbol(item);
+          setIsSymbolDetailsOpen(false);
+          setActiveTab('chart');
+        }}
+        onOpenTrade={(item, side, price) => {
+          handleSelectSymbol(item);
+          handleOpenOrder(side, price);
+          setIsSymbolDetailsOpen(false);
+        }}
       />
 
       {/* Bottom Sticky Tab Navigation */}

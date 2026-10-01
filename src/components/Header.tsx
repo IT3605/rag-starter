@@ -18,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   const getTabTitle = () => {
     switch (currentTab) {
       case 'watchlist': return 'Watchlist';
+      case 'markets': return 'Markets';
       case 'chart': return 'Chart';
       case 'ideas': return 'Ideas';
       case 'news': return 'News';

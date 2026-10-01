@@ -9,6 +9,7 @@ interface WatchlistViewProps {
   onSelectSymbol: (item: WatchlistItem) => void;
   onOpenAddSymbol: () => void;
   priceTickMap: Record<string, 'up' | 'down' | null>;
+  onOpenSymbolDetails?: (item: WatchlistItem) => void;
 }
 
 export const WatchlistView: React.FC<WatchlistViewProps> = ({
@@ -18,6 +19,7 @@ export const WatchlistView: React.FC<WatchlistViewProps> = ({
   onSelectSymbol,
   onOpenAddSymbol,
   priceTickMap,
+  onOpenSymbolDetails,
 }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showPercent, setShowPercent] = useState(true);
@@ -231,6 +233,18 @@ export const WatchlistView: React.FC<WatchlistViewProps> = ({
                     <span className="text-[9px] px-1 py-0.2 rounded bg-[#313441] text-[#8d90a2] font-semibold uppercase">
                       {item.sector}
                     </span>
+                    {onOpenSymbolDetails && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenSymbolDetails(item);
+                        }}
+                        title="View Detailed Technical Summary"
+                        className="text-[#8d90a2] hover:text-[#2962ff] flex items-center"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">info</span>
+                      </button>
+                    )}
                   </div>
                   <span className="text-[11px] text-[#8d90a2] truncate">{item.name}</span>
                 </div>
