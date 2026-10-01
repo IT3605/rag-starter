@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #F8FAFC;
+    color: #1a1b22;
+  }
+}
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
+}
+
+/* Design System Spacing Utilities */
+.p-space-2xs { padding: 0.125rem; }
+.p-space-xs { padding: 0.25rem; }
+.p-space-sm { padding: 0.5rem; }
+.p-space-md { padding: 0.75rem; }
+.p-space-lg { padding: 1rem; }
+.p-space-xl { padding: 1.5rem; }
+.p-space-2xl { padding: 2rem; }
+
+.px-margin { padding-left: 1.5rem; padding-right: 1.5rem; }
+.px-space-2xs { padding-left: 0.125rem; padding-right: 0.125rem; }
+.px-space-xs { padding-left: 0.25rem; padding-right: 0.25rem; }
+.px-space-sm { padding-left: 0.5rem; padding-right: 0.5rem; }
+.px-space-md { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-space-lg { padding-left: 1rem; padding-right: 1rem; }
+.px-space-xl { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+.py-space-2xs { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+.py-space-xs { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.py-space-sm { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-space-md { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-space-lg { padding-top: 1rem; padding-bottom: 1rem; }
+.py-space-xl { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.py-space-2xl { padding-top: 2rem; padding-bottom: 2rem; }
+
+.pt-space-2xs { padding-top: 0.125rem; }
+.pt-space-xs { padding-top: 0.25rem; }
+.pt-space-sm { padding-top: 0.5rem; }
+.pt-space-md { padding-top: 0.75rem; }
+.pt-space-lg { padding-top: 1rem; }
+.pt-space-xl { padding-top: 1.5rem; }
+.pt-space-2xl { padding-top: 2rem; }
+
+.mt-space-2xs { margin-top: 0.125rem; }
+.mt-space-xs { margin-top: 0.25rem; }
+.mt-space-sm { margin-top: 0.5rem; }
+.mt-space-md { margin-top: 0.75rem; }
+.mt-space-lg { margin-top: 1rem; }
+.mt-space-xl { margin-top: 1.5rem; }
+.mt-space-2xl { margin-top: 2rem; }
+.-mt-space-2xs { margin-top: -0.125rem; }
+
+.my-space-2xs { margin-top: 0.125rem; margin-bottom: 0.125rem; }
+.mr-space-2xs { margin-right: 0.125rem; }
+.mr-space-xs { margin-right: 0.25rem; }
+.mr-space-sm { margin-right: 0.5rem; }
+.mr-space-md { margin-right: 0.75rem; }
+
+.gap-space-2xs { gap: 0.125rem; }
+.gap-space-xs { gap: 0.25rem; }
+.gap-space-sm { gap: 0.5rem; }
+.gap-space-md { gap: 0.75rem; }
+.gap-space-lg { gap: 1rem; }
+.gap-space-xl { gap: 1.5rem; }
+.gap-space-2xl { gap: 2rem; }
+
+/* Design System Typography */
+.font-headline-xl { font-size: 36px; line-height: 44px; letter-spacing: -0.02em; font-weight: 700; }
+.font-headline-lg { font-size: 24px; line-height: 30px; letter-spacing: -0.01em; font-weight: 700; }
+.font-headline-sm { font-size: 18px; line-height: 24px; font-weight: 600; }
+.font-service-number-lg { font-size: 32px; line-height: 36px; letter-spacing: -0.02em; font-weight: 800; }
+.font-countdown-display { font-size: 20px; line-height: 24px; letter-spacing: -0.01em; font-weight: 700; }
+.font-body-lg { font-size: 16px; line-height: 24px; font-weight: 400; }
+.font-body-md { font-size: 14px; line-height: 20px; font-weight: 400; }
+.font-body-sm { font-size: 12px; line-height: 16px; font-weight: 400; }
+.font-label-md { font-size: 13px; line-height: 18px; letter-spacing: 0.01em; font-weight: 600; }
+.font-label-sm { font-size: 11px; line-height: 14px; letter-spacing: 0.02em; font-weight: 600; }
+
+/* Colors */
+.bg-canvas-bg { background-color: #F8FAFC; }
+.bg-surface-card { background-color: #FFFFFF; }
+.bg-surface { background-color: #fbf8ff; }
+.bg-surface-container { background-color: #eeedf7; }
+.bg-surface-container-low { background-color: #f4f2fd; }
+.bg-surface-container-high { background-color: #e8e7f1; }
+.bg-surface-container-highest { background-color: #e3e1eb; }
+.bg-surface-variant { background-color: #e3e1eb; }
+.bg-surface-dim { background-color: #dad9e3; }
+.bg-surface-bright { background-color: #fbf8ff; }
+
+.bg-primary { background-color: #5c0088; }
+.text-primary { color: #5c0088; }
+.border-primary { border-color: #5c0088; }
+.ring-primary { --tw-ring-color: #5c0088; }
+
+.bg-primary-container { background-color: #7a1cac; }
+.text-on-primary-container { color: #e4aeff; }
+.bg-primary-fixed { background-color: #f5d9ff; }
+.text-primary-fixed { color: #f5d9ff; }
+.bg-primary-fixed-dim { background-color: #e7b4ff; }
+.text-primary-fixed-dim { color: #e7b4ff; }
+.text-on-primary-fixed { color: #30004a; }
+.text-on-primary { color: #ffffff; }
+
+.bg-secondary { background-color: #006d34; }
+.text-secondary { color: #006d34; }
+.bg-secondary-container { background-color: #6efa98; }
+
+.bg-tertiary-container { background-color: #a01400; }
+.text-on-error { color: #ffffff; }
+.bg-bus-crowded { background-color: #D9381E; }
+.text-bus-crowded { color: #D9381E; }
+
+.bg-seats-available { background-color: #00B159; }
+.text-seats-available { color: #00B159; }
+
+.bg-standing-available { background-color: #F5A623; }
+.text-standing-available { color: #F5A623; }
+
+.text-route-slate { color: #64748B; }
+.text-on-surface { color: #1a1b22; }
+.text-on-surface-variant { color: #4e4352; }
+.text-outline-variant { color: #d1c2d4; }
+.bg-inverse-surface { background-color: #2f3037; }
+.text-inverse-on-surface { color: #f1effa; }
+
+.bg-sbs-purple-subtle { background-color: #F3E8FF; }
+.text-sbs-purple-tint { color: #766FB5; }
+
+/* Custom Scrollbar hide */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
