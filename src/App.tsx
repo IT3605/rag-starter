@@ -19,9 +19,11 @@ import {
   FeedbackModal,
   NearMeModal,
   BookmarksModal,
+  ApiHealthModal,
 } from './components/Modals';
 import { BUS_SERVICES, BusService } from './data/busServices';
 import { Language } from './data/translations';
+import { fetchLiveBusArrival, formatLtaArrivals } from './services/ltaService';
 
 export default function App() {
   const [currentServiceNo, setCurrentServiceNo] = useState<string>('147');
@@ -31,6 +33,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState<string>('live-arrivals');
   const [syncSeconds, setSyncSeconds] = useState<number>(12);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [isLiveLta, setIsLiveLta] = useState<boolean>(false);
   const [bookmarks, setBookmarks] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('sbs_bookmarked_services');
@@ -52,10 +55,12 @@ export default function App() {
     | 'feedback'
     | 'near-me'
     | 'bookmarks'
+    | 'api-health'
   >(null);
 
-  // Active Service
-  const currentService: BusService = BUS_SERVICES[currentServiceNo] || BUS_SERVICES['147'];
+  // Active Service State
+  const [serviceData, setServiceData] = useState<Record<string, BusService>>(BUS_SERVICES);
+  const currentService: BusService = serviceData[currentServiceNo] || BUS_SERVICES['147'];
 
   // Save Bookmarks to LocalStorage
   useEffect(() => {
@@ -66,25 +71,84 @@ export default function App() {
     }
   }, [bookmarks]);
 
-  // Telemetry Sync Timer (matches simulated 12s -> 30s cycle in spec)
+  // Find the focused bus stop object
+  const currentStops = currentService.directions.find((d) => d.id === selectedDirection)?.stops || currentService.directions[0].stops;
+  const currentFocusedStop = currentStops.find((s) => s.id === focusedStopId) || currentStops[0];
+
+  // Fetch live arrivals from /api/bus-arrival for focused stop
+  const loadLiveArrivals = async (stopCode: string, svcNo: string) => {
+    try {
+      const result = await fetchLiveBusArrival(stopCode, svcNo);
+      if (result && Array.isArray(result.Services) && result.Services.length > 0) {
+        setIsLiveLta(!result.isSimulated);
+        const matchingSvc = result.Services.find((s) => s.ServiceNo === svcNo) || result.Services[0];
+        if (matchingSvc) {
+          const formatted = formatLtaArrivals(matchingSvc);
+          if (formatted.length > 0) {
+            setServiceData((prev) => {
+              const currentSvc = prev[svcNo] || prev['147'];
+              const updatedDirections = currentSvc.directions.map((dir) => ({
+                ...dir,
+                stops: dir.stops.map((stop) => {
+                  if (stop.code === stopCode) {
+                    return {
+                      ...stop,
+                      arrivals: formatted,
+                    };
+                  }
+                  return stop;
+                }),
+              })) as [any, any];
+
+              return {
+                ...prev,
+                [svcNo]: {
+                  ...currentSvc,
+                  directions: updatedDirections,
+                },
+              };
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Live arrival fetch error:', err);
+    }
+  };
+
+  // Telemetry Sync Timer: 20-second automatic refresh per LTA v3 specification
   useEffect(() => {
     const timer = setInterval(() => {
       setSyncSeconds((prev) => {
-        if (prev >= 30) {
-          return 2;
+        if (prev >= 20) {
+          // Trigger 20s live arrival poll
+          if (currentFocusedStop?.code) {
+            loadLiveArrivals(currentFocusedStop.code, currentServiceNo);
+          }
+          return 1;
         }
         return prev + 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentFocusedStop?.code, currentServiceNo]);
 
-  const handleRefreshFeed = () => {
+  // Initial load when stop changes
+  useEffect(() => {
+    if (currentFocusedStop?.code) {
+      loadLiveArrivals(currentFocusedStop.code, currentServiceNo);
+    }
+  }, [currentFocusedStop?.code, currentServiceNo]);
+
+  const handleRefreshFeed = async () => {
     setIsRefreshing(true);
     setSyncSeconds(0);
+    if (currentFocusedStop?.code) {
+      await loadLiveArrivals(currentFocusedStop.code, currentServiceNo);
+    }
     setTimeout(() => {
       setIsRefreshing(false);
-      showToast('Live telematics feed refreshed with LTA DataMall');
+      showToast('Live telematics feed refreshed with /api/bus-arrival');
     }, 600);
   };
 
@@ -178,6 +242,8 @@ export default function App() {
                   onRefreshFeed={handleRefreshFeed}
                   syncSeconds={syncSeconds}
                   isRefreshing={isRefreshing}
+                  onOpenApiMonitor={() => setActiveModal('api-health')}
+                  isLiveLta={isLiveLta}
                 />
               </div>
 
@@ -259,6 +325,11 @@ export default function App() {
         onRemoveBookmark={(svc) => {
           setBookmarks(bookmarks.filter((b) => b !== svc));
         }}
+      />
+
+      <ApiHealthModal
+        isOpen={activeModal === 'api-health'}
+        onClose={() => setActiveModal(null)}
       />
     </div>
   );

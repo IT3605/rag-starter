@@ -610,3 +610,165 @@ export const BookmarksModal: React.FC<ModalProps & {
     </div>
   );
 };
+
+// 9. API Health & LTA DataMall Monitor Modal
+export const ApiHealthModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const [healthData, setHealthData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [testStopCode, setTestStopCode] = useState('83139');
+  const [testServiceNo, setTestServiceNo] = useState('15');
+  const [testResult, setTestResult] = useState<any>(null);
+  const [testLoading, setTestLoading] = useState(false);
+
+  const fetchHealth = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/health');
+      const data = await res.json();
+      setHealthData(data);
+    } catch (e: any) {
+      setHealthData({ status: 'error', error: e.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runTestQuery = async () => {
+    setTestLoading(true);
+    try {
+      const res = await fetch(`/api/bus-arrival?BusStopCode=${testStopCode}&ServiceNo=${testServiceNo}`);
+      const data = await res.json();
+      setTestResult(data);
+    } catch (e: any) {
+      setTestResult({ error: e.message });
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isOpen) {
+      fetchHealth();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#5c0088] text-2xl">health_and_safety</span>
+            <div>
+              <h3 className="font-headline-sm font-bold text-slate-900">API Health & LTA DataMall Monitor</h3>
+              <p className="text-xs text-slate-500">Live monitoring for /api/health & /api/bus-arrival</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 p-1 cursor-pointer">
+            <span className="material-symbols-outlined text-xl">close</span>
+          </button>
+        </div>
+
+        <div className="py-4 space-y-4 overflow-y-auto flex-1 text-xs">
+          {/* Health Status Block */}
+          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-bold text-slate-800">Endpoint Health: /api/health</span>
+              <button
+                onClick={fetchHealth}
+                disabled={loading}
+                className="text-[#5c0088] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span className={`material-symbols-outlined text-[14px] ${loading ? 'animate-spin' : ''}`}>
+                  refresh
+                </span>
+                <span>Refresh</span>
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="py-4 text-center text-slate-400">Pinging API health...</div>
+            ) : healthData ? (
+              <div className="space-y-1.5 font-mono">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Status:</span>
+                  <span className={`font-bold ${healthData.status === 'healthy' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {healthData.status?.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">LTA_ACCOUNT_KEY Configured:</span>
+                  <span className={`font-bold ${healthData.lta?.accountKeyConfigured ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {healthData.lta?.accountKeyConfigured ? 'YES (Active)' : 'NO (Add in Vercel Env)'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Upstream LTA v3 Status:</span>
+                  <span className="text-slate-800 font-semibold">{healthData.lta?.status || 'N/A'}</span>
+                </div>
+                {healthData.lta?.latencyMs !== null && healthData.lta?.latencyMs !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">LTA Latency:</span>
+                    <span className="text-slate-800">{healthData.lta?.latencyMs} ms</span>
+                  </div>
+                )}
+                <p className="font-sans text-slate-600 pt-1 text-[11px] leading-relaxed border-t border-slate-200/60 mt-1">
+                  {healthData.lta?.message}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Interactive LTA Endpoint Query Tester */}
+          <div className="p-3.5 bg-[#f4f2fd] rounded-xl border border-[#e3e1eb]">
+            <span className="font-bold text-slate-800 block mb-2">Test /api/bus-arrival Endpoint</span>
+            <div className="flex items-center gap-2 mb-2">
+              <div>
+                <label className="text-[10px] text-slate-500 block">BusStopCode</label>
+                <input
+                  type="text"
+                  value={testStopCode}
+                  onChange={(e) => setTestStopCode(e.target.value)}
+                  className="bg-white border border-slate-200 rounded px-2 py-1 text-xs w-24 font-mono font-bold"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-slate-500 block">ServiceNo</label>
+                <input
+                  type="text"
+                  value={testServiceNo}
+                  onChange={(e) => setTestServiceNo(e.target.value)}
+                  className="bg-white border border-slate-200 rounded px-2 py-1 text-xs w-20 font-mono font-bold"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={runTestQuery}
+                disabled={testLoading}
+                className="mt-3.5 bg-[#5c0088] text-white px-3 py-1.5 rounded font-bold hover:bg-[#7a1cac] transition-colors cursor-pointer text-xs"
+              >
+                {testLoading ? 'Fetching...' : 'Query'}
+              </button>
+            </div>
+
+            {testResult && (
+              <div className="mt-2 p-2 bg-slate-900 text-slate-100 rounded-lg max-h-40 overflow-y-auto text-[11px] font-mono">
+                <pre>{JSON.stringify(testResult, null, 2)}</pre>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-slate-100 flex justify-end">
+          <button
+            onClick={onClose}
+            className="bg-[#5c0088] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#7a1cac] transition-colors cursor-pointer text-xs"
+          >
+            Close Monitor
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

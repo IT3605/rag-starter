@@ -11,6 +11,8 @@ interface TimelineArrivalsProps {
   onRefreshFeed: () => void;
   syncSeconds: number;
   isRefreshing: boolean;
+  onOpenApiMonitor?: () => void;
+  isLiveLta?: boolean;
 }
 
 export const TimelineArrivals: React.FC<TimelineArrivalsProps> = ({
@@ -22,6 +24,8 @@ export const TimelineArrivals: React.FC<TimelineArrivalsProps> = ({
   onRefreshFeed,
   syncSeconds,
   isRefreshing,
+  onOpenApiMonitor,
+  isLiveLta,
 }) => {
   const [showAllStops, setShowAllStops] = useState(false);
   const t = TRANSLATIONS[currentLang];
@@ -58,9 +62,9 @@ export const TimelineArrivals: React.FC<TimelineArrivalsProps> = ({
   return (
     <div className="flex flex-col gap-space-md">
       {/* Telemetry Sync Header Bar */}
-      <div className="bg-white rounded-xl p-space-md shadow-sm border border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-space-sm">
-          <span className="relative flex h-3 w-3">
+      <div className="bg-white rounded-xl p-space-md shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+        <div className="flex items-center gap-space-sm flex-wrap">
+          <span className="relative flex h-3 w-3 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B159] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00B159]"></span>
           </span>
@@ -69,14 +73,25 @@ export const TimelineArrivals: React.FC<TimelineArrivalsProps> = ({
             <span className="font-semibold text-[#1a1b22] tabular-nums" id="sync-counter">
               {syncSeconds}s
             </span>{' '}
-            ago
+            ago (20s refresh)
           </p>
+          {onOpenApiMonitor && (
+            <button
+              type="button"
+              onClick={onOpenApiMonitor}
+              className="text-[11px] font-bold text-[#5c0088] bg-[#f5d9ff] hover:bg-[#e7b4ff] px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer transition-colors"
+              title="Click to view /api/health and LTA API monitor"
+            >
+              <span className="material-symbols-outlined text-[13px]">monitor_heart</span>
+              <span>API Health</span>
+            </button>
+          )}
         </div>
 
         <button
           type="button"
           onClick={onRefreshFeed}
-          className="flex items-center gap-space-2xs text-[#5c0088] font-label-sm px-space-sm py-space-2xs rounded-lg hover:bg-[#eeedf7] transition-colors cursor-pointer"
+          className="flex items-center gap-space-2xs text-[#5c0088] font-label-sm px-space-sm py-space-2xs rounded-lg hover:bg-[#eeedf7] transition-colors cursor-pointer self-start sm:self-center"
           id="refresh-arrival-btn"
         >
           <span
