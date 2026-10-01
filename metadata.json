@@ -1,0 +1,6 @@
+{
+  "name": "Obsidian Market Terminal",
+  "description": "High-performance institutional-grade mobile market terminal and technical charting workstation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
